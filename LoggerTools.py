@@ -1153,26 +1153,6 @@ def sort_rewards_and_trade():
 
 
 def duplicate_remover_crystal():
-    # f = open("crystal crops/ItemsAndImagesCrystalOneList.json")
-    # filename = "crystal crops/ItemsAndImagesCrystalOneList.json"
-    # data = json.load(f)
-    # rewards_vals = data["items"]
-    # f.close()
-    #
-    # temp = []
-    # for i in range(len(rewards_vals)):
-    #     if rewards_vals[i] not in rewards_vals[i + 1:]:
-    #         print("Adding", rewards_vals[i]["name"])
-    #         temp.append(rewards_vals[i])
-    #
-    # data = {
-    #     "items": temp
-    # }
-    #
-    # with open(filename, "w") as f:
-    #     json.dump(data, f, indent=4)
-
-
     f = open("crystal crops/ItemsAndImagesCrystal.json")
     filename = "crystal crops/ItemsAndImagesCrystal.json"
     data = json.load(f)
@@ -1347,62 +1327,142 @@ def blue_to_tan_crystal():
         json.dump(data, f, indent=4)
 
 
+def sort_and_remove_dupes_json(filepath, filename):
+    data = json.load(open(filepath))
+    rewards_vals = data["items"]
+
+    item_list = []
+    with open("oasis crops/oasisitems.txt", "r") as f:
+        while f:
+            val = f.readline()
+            if val == "":
+                break
+            item_list.append(val.replace("\n", ""))
+
+    item_vals = []
+    for i in range(len(item_list)):
+        for j in range(len(rewards_vals), 0, -1):
+            temp = rewards_vals[j - 1]["name"]
+            if temp == item_list[i]:
+                temp = rewards_vals.pop(j - 1)
+                item_vals.append(temp)
+
+    item_temp = []
+    for i in range(len(item_vals)):
+        if item_vals[i] not in item_vals[i + 1:]:
+            item_temp.append(item_vals[i])
+
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+    data = {"items": item_temp}
+    with open("JSON images/" + filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def values_oasis():
+    new_list = []
+    item_list = []
+    with open("oasis crops/oasisitems.txt", "r") as f:
+        while f:
+            val = f.readline()
+            if val == "":
+                break
+            item_list.append(val)
+
+
+    seen = set()
+    for i in range(len(item_list)):
+        if item_list[i] not in seen:
+            seen.add(item_list[i])
+            new_list.append(item_list[i].replace("\n", ""))
+
+    tab_list = []
+    with open("oasis crops/oasis_tab.txt", "r") as f:
+        while f:
+            val = str(f.readline())
+            if val == "":
+                break
+            else:
+                val = int(val)
+                if val == 1:
+                    tab_list.append("oasis")
+                elif val == 2:
+                    tab_list.append("miscellaneous")
+
+    data = {}
+    for i in range(len(new_list)):
+        data[new_list[i]] = {"tab": tab_list[i], "quantity": 0, "order": i + 1}
+
+    #TODO: Filename has changed. Add a personal addition
+    with open("oasis crops/LocalStorageOasisInit.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+
+
 choice = 0
 while choice == 0:  # TODO: Change to != -1 to loop it
-    print("What are you doing?\n\n"
+    print("""
+        What are you doing?
           
-          "Clue items below here\n"
-          "=====================\n"
-          "1 for new json\n"
-          "2 for names\n"
-          "3 for removing underscores from openlogger image names\n"
-          "4 to change blue to tan\n"
-          "5 to turn base64 to png\n"
-          "6 to turn csvs into jsons\n\n"
+        Clue items below here
+        =====================
+        1 for new json
+        2 for names
+        3 for removing underscores from openlogger image names
+        4 to change blue to tan
+        5 to turn base64 to png
+        6 to turn csvs into jsons
           
           
-          "Barrows items below here\n"
-          "========================\n"
-          "7 to remove underscores from barrows image names\n"
-          "8 for barrows names\n"
-          "9 for cropping assorted barrows items png\n"
-          "10 to change blue to tan for barrows\n"
-          "21 to see barrows items\n\n"
+        Barrows items below here
+        ========================
+        7 to remove underscores from barrows image names
+        8 for barrows names
+        9 for cropping assorted barrows items png
+        10 to change blue to tan for barrows
+        21 to see barrows items
     
           
-          "Tetra items below here\n"
-          "======================\n"
-          "11 to crop tetra reward artifact image\n"
-          "12 to crop tetra bank artifact image\n"
-          "13 to sort rewards and bank JSONs\n"
-          "14 to visually see new Tetra JSON\n"
-          "15 to crop five material images\n"
-          "16 to change blue to tan for tetras\n"
-          "17 for tetra names\n"
-          "18 to remove underscores from tetra image names\n"
-          "19 to remove duplicates from JSON\n"
-          "20 to visually see new legacy Tetra JSON\n\n"
+        Tetra items below here
+        ======================
+        11 to crop tetra reward artifact image
+        12 to crop tetra bank artifact image
+        13 to sort rewards and bank JSONs
+        14 to visually see new Tetra JSON
+        15 to crop five material images
+        16 to change blue to tan for tetras
+        17 for tetra names
+        18 to remove underscores from tetra image names
+        19 to remove duplicates from JSON
+        20 to visually see new legacy Tetra JSON
             
             
-          "Crystal items below here\n"
-          "======================\n"
-          "22 for crystal names\n"
-          "23 to crop crystal reward image\n"
-          "24 to crop crystal trade image\n"
-          "25 to merge reward and trade JSONs + sort by chest\n"
-          "26 to remove duplicates from JSON\n"
-          "27 to display crystal items\n"
-          "28 to change blue to tan for crystal items\n"
-          "29 to display legacy crystal items\n"
-          "30 to remove underscores from crystal names\n\n"
+        Crystal items below here
+        ========================
+        22 for crystal names
+        23 to crop crystal reward image
+        24 to crop crystal trade image
+        25 to merge reward and trade JSONs + sort by chest
+        26 to remove duplicates from JSON
+        27 to display crystal items
+        28 to change blue to tan for crystal items
+        29 to display legacy crystal items
+        30 to remove underscores from crystal names
+        
+        Oasis items below here
+        ======================
+        31 to crop oasis reward image
+        32 to sort and remove duplicates from JSON
+        33 to view JSON
+        34 for oasis values
+        35 to remove underscores
           
-          
-          
-          "-1 to exit\n"
+        -1 to exit\n""")
 
-          )
 
-    choice = int(input())
+    choice = int(input("        Enter here: "))
 
     # OpenLogger:
     try:
@@ -1599,3 +1659,39 @@ while choice == 0:  # TODO: Change to != -1 to loop it
 
     except Exception as e:
         print(e)
+
+    # OasisLogger
+    try:
+        if choice == 31:
+            if __name__ == '__main__':
+                root = tk.Tk()
+                root.title("Image cropper and assigner")
+                a = ImageCropper(root,
+                                 "oasis crops/oasis rewards.png",
+                                 "oasis crops/oasisitems.txt",
+                                 25, 8, 46, 55,
+                                 "Results/ItemsAndImagesOasis.json")
+                root.configure(bg="gray20")
+                root.mainloop()
+
+        elif choice == 32:
+            sort_and_remove_dupes_json("Results/ItemsAndImagesOasis.json", "ItemsAndImagesOasisReorganized.json")
+
+        elif choice == 33:
+            if __name__ == '__main__':
+                root = tk.Tk()
+                root.title("JSONViewer")
+                filename = "JSON images/ItemsAndImagesOasisReorganized.json"
+                a = JSONViewer(root, filename)
+                root.geometry("600x800")
+                root.configure(bg="gray20")
+                root.mainloop()
+
+        elif choice == 34:
+            values_oasis()
+
+        elif choice == 35:
+            remove_underscores("oasis images/")
+
+    except Exception as e:
+        raise e
